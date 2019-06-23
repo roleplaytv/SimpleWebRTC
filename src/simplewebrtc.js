@@ -278,6 +278,10 @@ SimpleWebRTC.prototype.disconnect = function () {
 };
 
 SimpleWebRTC.prototype.handlePeerStreamAdded = function (peer) {
+    if(this.config.isOmittingPeers){
+        return;
+    }
+
     var self = this;
     var container = this.getRemoteVideoContainer();
     var video = attachMediaStream(peer.stream);
