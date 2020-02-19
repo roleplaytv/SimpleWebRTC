@@ -79,6 +79,18 @@ function SimpleWebRTC(opts) {
         self.testReadiness();
     });
 
+    connection.on('disconnect', (log) => {
+      self.emit('disconnected');
+    });
+
+    connection.on('peer_connected', function (body) {
+      self.emit('peer_connected', body);
+    });
+
+    connection.on('peer_disconnected', function (body) {
+      self.emit('peer_disconnected', body);
+    });
+
     connection.on('message', function (message) {
         var peers = self.webrtc.getPeers(message.from, message.roomType);
         var peer;
@@ -173,11 +185,12 @@ function SimpleWebRTC(opts) {
 
     this.webrtc.on('iceFailed', function (peer) {
         // local ice failure
+        console.log('ice failed');
     });
     this.webrtc.on('connectivityError', function (peer) {
         // remote ice failure
+        console.log('connectivity error');
     });
-
 
     // sending mute/unmute to all peers
     this.webrtc.on('audioOn', function () {
@@ -328,11 +341,10 @@ SimpleWebRTC.prototype.setVolumeForAll = function (volume) {
     });
 };
 
-SimpleWebRTC.prototype.joinRoom = function (name, cb) {
+SimpleWebRTC.prototype.joinRoom = function (nick, room, cb) {
     var self = this;
-    this.roomName = name;
-    this.connection.emit('join', name, function (err, roomDescription) {
-        console.log('join CB', err, roomDescription);
+    this.roomName = room;
+    this.connection.emit('join', nick, room, function (err, roomDescription) {
         if (err) {
             self.emit('error', err);
         } else {
@@ -361,7 +373,7 @@ SimpleWebRTC.prototype.joinRoom = function (name, cb) {
         }
 
         if (cb) cb(err, roomDescription);
-        self.emit('joinedRoom', name);
+        self.emit('joinedRoom', this.roomName);
     });
 };
 
