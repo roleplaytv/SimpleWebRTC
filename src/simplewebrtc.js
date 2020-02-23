@@ -327,11 +327,11 @@ SimpleWebRTC.prototype.handlePeerStreamRemoved = function (peer) {
     if (this.config.autoRemoveVideos && container && videoEl) {
         container.removeChild(videoEl);
     }
-    if (videoEl) this.emit('videoRemoved', videoEl, peer);
+    this.emit('videoRemoved', videoEl, peer);
 };
 
 SimpleWebRTC.prototype.getDomId = function (peer) {
-    return [peer.id, peer.type, peer.broadcaster ? 'broadcasting' : 'incoming'].join('_');
+  return [peer.id, peer.type, peer.broadcaster ? 'broadcasting' : 'incoming'].join('_');
 };
 
 // set volume on video tag for all peers takse a value between 0 and 1
@@ -354,8 +354,8 @@ SimpleWebRTC.prototype.joinRoom = function (nick, room, cb) {
                 peer;
             for (id in roomDescription.clients) {
                 client = roomDescription.clients[id];
-                for (type in client) {
-                    if (client[type]) {
+                for (type in client.resources) {
+                    if (client.resources[type]) {
                         peer = self.webrtc.createPeer({
                             id: id,
                             type: type,
@@ -376,6 +376,11 @@ SimpleWebRTC.prototype.joinRoom = function (nick, room, cb) {
         self.emit('joinedRoom', this.roomName);
     });
 };
+
+SimpleWebRTC.prototype.reconnect = function (cb) {
+  //console.log("Attempt reconnect");
+  //SimpleWebRTC.prototype.joinRoom(this.roomName, cb);
+}
 
 SimpleWebRTC.prototype.getEl = function (idOrEl) {
     if (typeof idOrEl === 'string') {
